@@ -12,10 +12,12 @@ def generate_data(n=100):
 def main():
     st.title('Editable Data Table with ag-Grid')
 
-    df = generate_data()
+    # Using Streamlit's session state to store the dataframe
+    if 'df' not in st.session_state:
+        st.session_state.df = generate_data()
 
     # Grid options builder
-    gb = GridOptionsBuilder.from_dataframe(df)
+    gb = GridOptionsBuilder.from_dataframe(st.session_state.df)
     gb.configure_default_column(editable=True, resizable=True, autoHeight=True)
     gb.configure_grid_options(enableRangeSelection=True)
 
@@ -23,7 +25,7 @@ def main():
 
     # Displaying the grid
     grid_response = AgGrid(
-        df, 
+        st.session_state.df, 
         gridOptions=grid_options,
         update_mode=GridUpdateMode.MODEL_CHANGED,
         fit_columns_on_grid_load=True,
@@ -32,10 +34,12 @@ def main():
         allow_unsafe_jscode=True
     )
 
-    # Retrieving updated data
-    updated_df = grid_response['data']
+    # Update session state
+    st.session_state.df = grid_response['data']
+
+    # Display updated data
     st.write("### Updated Data")
-    st.dataframe(updated_df)
+    st.dataframe(st.session_state.df)
 
 if __name__ == "__main__":
     main()
