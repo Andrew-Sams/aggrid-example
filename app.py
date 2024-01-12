@@ -34,14 +34,13 @@ num_simulations = st.sidebar.slider("Number of Simulations", 1, 10000, 1000)
 
 # Button to run the simulation
 if st.sidebar.button("Run Simulation"):
-   
-updated_df = pd.DataFrame(grid_response['data'])
-simulation_results = []
+    updated_df = pd.DataFrame(grid_response['data'])
+    simulation_results = []
 
-for _ in range(num_simulations):
-    simulated_values = [asymmetrical_gaussian(row['Low'], row['Estimate'], row['High']) for _, row in updated_df.iterrows()]
-    simulation_results.append(sum(simulated_values))
+    for _ in range(num_simulations):
+        simulated_values = [asymmetrical_gaussian(row['Low'], row['Estimate'], row['High']) for _, row in updated_df.iterrows()]
+        simulation_results.append(sum(simulated_values))
 
-# Plotting the results
-plt.hist(simulation_results, bins=30, edgecolor='black')
-st.pyplot(plt)
+    # Plotting the results
+    plt.hist(simulation_results, bins=30, edgecolor='black')
+    st.pyplot(plt)
