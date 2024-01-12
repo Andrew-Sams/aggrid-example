@@ -15,10 +15,16 @@ def main():
 
     df = generate_data()
 
+    # Grid options builder
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_grid_options(editable=True)
+
+    # Enable cell editing
+    gb.configure_columns(df.columns, editable=True)
+
+    # Build grid options
     grid_options = gb.build()
 
+    # Displaying the grid
     grid_response = AgGrid(
         df, 
         gridOptions=grid_options,
@@ -26,6 +32,7 @@ def main():
         fit_columns_on_grid_load=True,
     )
 
+    # Retrieving updated data
     updated_df = grid_response['data']
     st.write("### Updated Data")
     st.dataframe(updated_df)
