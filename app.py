@@ -3,7 +3,6 @@ from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import pandas as pd
 import numpy as np
 
-@st.cache(allow_output_mutation=True)
 def generate_data(n=100):
     return pd.DataFrame({
         'Category': np.random.choice(['A', 'B', 'C'], n),
@@ -15,13 +14,19 @@ def main():
 
     df = generate_data()
 
+    # Explicit column definitions
+    column_defs = [
+        {'headerName': 'Category', 'field': 'Category', 'editable': True},
+        {'headerName': 'Value', 'field': 'Value', 'editable': True}
+    ]
+
     # Grid options builder
     gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_default_column(editable=True)
+    gb.configure_column("Category", editable=True)
+    gb.configure_column("Value", editable=True)
+    gb.configure_grid_options(columnDefs=column_defs)
 
-    # Enable cell editing
-    gb.configure_columns(df.columns, editable=True)
-
-    # Build grid options
     grid_options = gb.build()
 
     # Displaying the grid
@@ -30,6 +35,8 @@ def main():
         gridOptions=grid_options,
         update_mode=GridUpdateMode.MODEL_CHANGED,
         fit_columns_on_grid_load=True,
+        height=300,
+        width='100%'
     )
 
     # Retrieving updated data
