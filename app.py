@@ -14,18 +14,10 @@ def main():
 
     df = generate_data()
 
-    # Explicit column definitions
-    column_defs = [
-        {'headerName': 'Category', 'field': 'Category', 'editable': True},
-        {'headerName': 'Value', 'field': 'Value', 'editable': True}
-    ]
-
     # Grid options builder
     gb = GridOptionsBuilder.from_dataframe(df)
-    gb.configure_default_column(editable=True)
-    gb.configure_column("Category", editable=True)
-    gb.configure_column("Value", editable=True)
-    gb.configure_grid_options(columnDefs=column_defs)
+    gb.configure_default_column(editable=True, resizable=True, autoHeight=True)
+    gb.configure_grid_options(enableRangeSelection=True)
 
     grid_options = gb.build()
 
@@ -36,7 +28,8 @@ def main():
         update_mode=GridUpdateMode.MODEL_CHANGED,
         fit_columns_on_grid_load=True,
         height=300,
-        width='100%'
+        width='100%',
+        allow_unsafe_jscode=True
     )
 
     # Retrieving updated data
