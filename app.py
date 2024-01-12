@@ -1,37 +1,34 @@
 import streamlit as st
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
 import pandas as pd
 import numpy as np
 
 @st.cache(allow_output_mutation=True)
 def generate_data(n=100):
     return pd.DataFrame({
-        'ID': np.arange(n),
         'Category': np.random.choice(['A', 'B', 'C'], n),
         'Value': np.random.rand(n)
     })
 
-def update_data(df, row_id, new_value):
-    df.loc[df['ID'] == row_id, 'Value'] = new_value
-    return df
-
 def main():
-    st.title('Editable Data Table with Streamlit')
+    st.title('Editable Data Table with ag-Grid')
 
     df = generate_data()
 
-    st.write("### Original Data")
-    st.dataframe(df)
+    gb = GridOptionsBuilder.from_dataframe(df)
+    gb.configure_grid_options(editable=True)
+    grid_options = gb.build()
 
-    st.write("### Edit Data")
-    row_id = st.number_input("Enter Row ID to Edit", min_value=0, max_value=df['ID'].max(), step=1)
-    new_value = st.number_input("Enter New Value", min_value=0.0, max_value=1.0)
-    
-    if st.button("Update Data"):
-        df = update_data(df, row_id, new_value)
-        st.success("Data Updated")
+    grid_response = AgGrid(
+        df, 
+        gridOptions=grid_options,
+        update_mode=GridUpdateMode.MODEL_CHANGED,
+        fit_columns_on_grid_load=True,
+    )
 
+    updated_df = grid_response['data']
     st.write("### Updated Data")
-    st.dataframe(df)
+    st.dataframe(updated_df)
 
 if __name__ == "__main__":
     main()
