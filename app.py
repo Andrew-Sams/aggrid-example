@@ -53,13 +53,18 @@ def main():
     num_simulations = st.slider("Number of Simulations", 1, 10000, 1000)
 
     # Button to run the simulation
+    # Button to run the simulation
     if st.button("Run Simulation"):
         updated_df = pd.DataFrame(st.session_state.df)
         simulation_results = []
-
+    
         for _ in range(num_simulations):
             simulated_values = [asymmetrical_gaussian(row['Low'], row['Estimate'], row['High']) for _, row in updated_df.iterrows()]
             simulation_results.append(sum(simulated_values))
+    
+        # Plotting the results as a histogram
+        plt.hist(simulation_results, bins=30, edgecolor='black')
+        st.pyplot(plt)
 
         # Plotting the results
         plt.hist(simulation_results, bins=30, edgecolor='black')
