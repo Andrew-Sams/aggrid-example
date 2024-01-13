@@ -28,52 +28,53 @@ def main():
     if 'df' not in st.session_state:
         st.session_state.df = generate_data()
 
-    # Grid options builder
-    gb = GridOptionsBuilder.from_dataframe(st.session_state.df)
-    gb.configure_default_column(editable=True, resizable=True, autoHeight=True)
-    gb.configure_grid_options(enableRangeSelection=True)
+    # Layout with two columns
+    left_column, right_column = st.beta_columns(2)
 
-    grid_options = gb.build()
+    with left_column:
+        # Grid options builder
+        gb = GridOptionsBuilder.from_dataframe(st.session_state.df)
+        gb.configure_default_column(editable=True, resizable=True, autoHeight=True)
+        gb.configure_grid_options(enableRangeSelection=True)
 
-    # Displaying the grid
-    grid_response = AgGrid(
-        st.session_state.df, 
-        gridOptions=grid_options,
-        update_mode=GridUpdateMode.MODEL_CHANGED,
-        fit_columns_on_grid_load=True,
-        height=300,
-        width='100%',
-        allow_unsafe_jscode=True
-    )
+        grid_options = gb.build()
 
-    # Update session state
-    st.session_state.df = grid_response['data']
+        # Displaying the grid
+        grid_response = AgGrid(
+            st.session_state.df, 
+            gridOptions=grid_options,
+            update_mode=GridUpdateMode.MODEL_CHANGED,
+            fit_columns_on_grid_load=True,
+            height=300,
+            width='100%',
+            allow_unsafe_jscode=True
+        )
 
-    # Slider for the number of simulations
-    num_simulations = st.slider("Number of Simulations", 1, 10000, 1000)
+        # Update session state
+        st.session_state.df = grid_response['data']
 
-    # Button to run the simulation
-    # Button to run the simulation
-    if st.button("Run Simulation"):
-        updated_df = pd.DataFrame(st.session_state.df)
-        simulation_results = []
-    
-        for _ in range(num_simulations):
-            simulated_values = [asymmetrical_gaussian(row['Low'], row['Estimate'], row['High']) for _, row in updated_df.iterrows()]
-            simulation_results.append(sum(simulated_values))
-    
-        # Plotting the results as a histogram
-        plt.hist(simulation_results, bins=30, edgecolor='black')
-        st.pyplot(plt)
+        # Slider for the number of simulations
+        num_simulations = st.slider("Number of Simulations", 1, 10000, 1000)
 
-        # Plotting the results
-        plt.hist(simulation_results, bins=30, edgecolor='black')
-        st.pyplot(plt)
+        # Button to run the simulation
+        if st.button("Run Simulation"):
+            updated_df = pd.DataFrame(st.session_state.df)
+            simulation_results = []
+        
+            for _ in range(num_simulations):
+                simulated_values = [asymmetrical_gaussian(row['Low'], row['Estimate'], row['High']) for _, row in updated_df.iterrows()]
+                simulation_results.append(sum(simulated_values))
 
-    # Display updated data
+            # Update the histogram in the right panel
+            right_column.pyplot(plt.hist(simulation_results, bins=30, edgecolor='black'))
+
+    with right_column:
+        st.write("### Simulation Results")
+        # The histogram will be updated here when the button is clicked
+
+    # Display updated data outside the columns
     st.write("### Updated Data")
     st.dataframe(st.session_state.df)
 
 if __name__ == "__main__":
     main()
-
